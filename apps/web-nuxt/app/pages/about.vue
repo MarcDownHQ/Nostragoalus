@@ -158,7 +158,7 @@ const renderInline = (md: string): string =>
     <section class="ng-card rounded-2xl border p-6" style="background: var(--p-content-background)">
       <h2 class="font-semibold text-lg flex items-center gap-2"><i class="pi pi-sparkles" style="color: var(--p-primary-color)" /> {{ t('about.aiTitle') }}</h2>
       <p class="text-sm mt-2" style="color: var(--p-text-muted-color)">{{ t('about.aiText') }}</p>
-      <a href="https://git.arzaroth.com/Arzaroth/Nostragoalus" target="_blank" rel="noopener" class="inline-flex items-center gap-2 mt-3 text-sm hover:underline" style="color: var(--p-primary-color)"><i class="pi pi-code" /> {{ t('about.sourceCta') }}</a>
+      <a href="https://github.com/MarcDownHQ/Nostragoalus" target="_blank" rel="noopener" class="inline-flex items-center gap-2 mt-3 text-sm hover:underline" style="color: var(--p-primary-color)"><i class="pi pi-code" /> {{ t('about.sourceCta') }}</a>
     </section>
 
     <!-- Client-code integrity -->

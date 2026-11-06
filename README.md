@@ -15,7 +15,7 @@ decides where its fixtures come from, how a prediction is scored, which ranking 
 pick, and what the mark looks like. **Rugby union** is supported end to end, from World Rugby's own
 feed - see [brain/features/rugby.md](brain/features/rugby.md).
 
-Source: <https://git.arzaroth.com/Arzaroth/Nostragoalus>
+Source: <https://github.com/MarcDownHQ/Nostragoalus>
 
 ## Runtimes
 
