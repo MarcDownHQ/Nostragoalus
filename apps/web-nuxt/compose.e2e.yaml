@@ -10,9 +10,17 @@
 # so both can run at once. Tear down with `-p ng-e2e ... down -v` to drop the DB.
 
 services:
+  # Pinned: this project shares the host's .env, so an NG_*_SOURCE bind path set
+  # there would otherwise point this throwaway stack at the live data directory.
   db:
     ports: !override
       - '127.0.0.1:5433:5432'
+    volumes: !override
+      - nostragoalus_pgdata:/var/lib/postgresql/data
+
+  rustfs:
+    volumes: !override
+      - nostragoalus_media:/data
 
   maildev:
     ports: !override
