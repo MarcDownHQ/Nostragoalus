@@ -3810,3 +3810,20 @@ what it has already found.
       `formatter:` in analysis_options.yaml) so the check stops depending on
       whether packages were fetched.
 
+
+## Optional bind-mount sources - deferred (chore/optional-bind-mounts)
+
+- [ ] Guard the e2e volume pin in CI. Nothing fails if `compose.e2e.yaml` loses its
+      `volumes: !override` on `db` and `rustfs`, because CI leaves `NG_PGDATA_SOURCE`
+      and `NG_MEDIA_SOURCE` unset. One step in the e2e job: run `docker compose -p x`
+      with the e2e overlays and `config` with both variables set to dummy paths, and
+      assert both services still report `type: volume`.
+- [ ] No guard against the silent fallback. The `:-` default means that losing the
+      variables, or running compose from another checkout (the project name is fixed),
+      restarts the live `db` on other data with no error. Documented in the README and
+      brain/operations.md. Worth a preflight in `mise run deploy` that refuses to start
+      when a bind directory exists under `apps/web-nuxt/.data/` but the variables are
+      unset.
+- [ ] `app-dev` bind-mounts the repo, so dev and e2e on a host with bind data can still
+      reach `apps/web-nuxt/.data/` as root. No code path writes there. Mask the directory
+      in `compose.dev.yaml` if dev or e2e ever needs to run on such a host.
