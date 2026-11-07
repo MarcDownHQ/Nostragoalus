@@ -23,4 +23,5 @@ node_modules/
 .output/
 .nitro/
 .cache/
-.data/
+# Not .data/: on a host using bind mounts it holds live Postgres files this user
+# cannot read, which aborts the whole copy (no .env, no node_modules).
