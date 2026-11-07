@@ -8,8 +8,9 @@
 #   - dangling images: old app:dev/:local layers from `mise run preview`/`dev` rebuilds.
 #   - orphan anon volumes: the /app/node_modules, /app/.nuxt, /app/.output volumes
 #     `mise run dev` abandons via --renew-anon-volumes. Only DANGLING (unused) ones,
-#     and pgdata is excluded by name on top of that, so the database volume can
-#     never be removed - even with the stack down.
+#     and the data volumes (pgdata, media) are excluded by name on top of that, so
+#     they can never be removed - even with the stack down, or left unused as the
+#     rollback copy after moving to bind mounts (NG_PGDATA_SOURCE/NG_MEDIA_SOURCE).
 #
 # DELIBERATELY LEAVES ALONE:
 #   - build cache: a daemon-wide, content-addressed, cross-worktree asset (the shared
@@ -21,9 +22,9 @@ set -euo pipefail
 
 filter='label=com.docker.compose.project=nostragoalus'
 images=$(docker image ls -q -f dangling=true -f "$filter")
-# dangling=true already spares in-use volumes (pgdata while the stack is up); the
-# pgdata name check is the belt-and-braces guard for when the stack is down.
-volumes=$(docker volume ls -q -f dangling=true -f "$filter" | grep -v pgdata || true)
+# dangling=true only spares volumes in use by a container; the name check protects
+# the data volumes when nothing is using them.
+volumes=$(docker volume ls -q -f dangling=true -f "$filter" | grep -vE 'pgdata|media' || true)
 
 if [ "${usage_dry_run:-}" = "true" ]; then
   echo "[dry-run] dangling images: ${images:-none}"
