@@ -7,11 +7,11 @@ naDev Nostragoalus choHmey potlh Hoch qonlu'.
 
 ### chelpu'
 
-- De' pol: DaH `NG_PGDATA_SOURCE` `NG_MEDIA_SOURCE` je `.env`Daq yIcher; compose De'wI' retlhDaq De'wI' mIllogh je ta'. wa'DIch De' yIlab, pagh chIm Daq.
+- De' pol: DaH `NG_PGDATA_SOURCE` `NG_MEDIA_SOURCE` je `.env`Daq yIcher; compose retlhDaq database mIllogh je ta'. bIcherbe'chugh, choHbe' Docker pol. wa'DIch De' yIlab, pagh chIm Daq.
 
 ### tI'pu'
 
-- `mise run docker-clean`: mIllogh De' Sochbe' Hoch mevDI'.
+- `mise run docker-clean`: mIllogh De' teqbe' Hoch mevDI'.
 
 ## [5.2.0] - 2026-10-21
 

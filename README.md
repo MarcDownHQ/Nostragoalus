@@ -291,23 +291,49 @@ NG_PGDATA_SOURCE=./.data/pgdata
 NG_MEDIA_SOURCE=./.data/media
 ```
 
-On an existing deploy, **copy the data first**: with these set and the directories
-empty, the app starts on an empty database. With the stack stopped (`down`, never
-`down -v`), from `apps/web-nuxt`:
+On an existing deploy, **copy the data first**. With these set and an empty
+`.data/pgdata`, Postgres creates a new empty database and the site comes up on it,
+and an account registered with an address from `NUXT_ADMIN_EMAILS` is an admin there.
+With the stack stopped (`down`, never `down -v`), from `apps/web-nuxt`:
 
 ```bash
-mkdir -p .data/pgdata .data/media
-for d in pgdata media; do
-  docker run --rm -v "nostragoalus_nostragoalus_$d:/from:ro" -v "$PWD/.data/$d:/to" \
-    alpine sh -c 'cp -a /from/. /to/ && chown "$(stat -c %u:%g /from)" /to'
-done
+mkdir -p .data/pgdata .data/media && chmod 700 .data
+(
+  set -e
+  for d in pgdata media; do
+    docker volume inspect "nostragoalus_nostragoalus_$d" >/dev/null
+    docker run --rm -v "nostragoalus_nostragoalus_$d:/from:ro" -v "$PWD/.data/$d:/to" alpine sh -ec '
+      [ -z "$(ls -A /to)" ]
+      cp -a /from/. /to/
+      chown "$(stat -c %u:%g /from)" /to
+      diff -r /from /to
+    '
+  done
+  echo copied
+)
 ```
 
+Set the variables only after this prints `copied`. It stops if a volume is missing,
+a target is not empty, or the copy differs. `chmod 700` matters because rustfs stores
+objects unencrypted, and this directory lacks the protection of Docker's data root.
+
 Ownership has to survive the copy. rustfs runs as uid 10001 and exits with
-`Permission denied` on a directory it does not own, so a new, empty media directory
-needs `chown 10001:10001` too; Postgres fixes its own directory at startup. The
-named volumes stay in place as the rollback copy until you remove them by hand.
-`.data/` is gitignored, so `git clean -x` deletes it.
+`Permission denied` on a directory it does not own, which leaves `rustfs-init` and
+the app waiting. A new, empty media directory needs
+`docker run --rm -v "$PWD/.data/media:/m" alpine chown 10001:10001 /m`, run through
+a container so it is also right on rootless Docker. Postgres fixes its own directory
+at startup.
+
+Once these are on:
+
+- Run compose on that host from this checkout only. The project name is fixed, so a
+  second checkout or worktree restarts the live `db` on whatever its own `.env`
+  says: a relative path means its own empty `.data/`, and no variables mean the old
+  volumes.
+- Don't lose the variables. Without them, the next deploy silently starts on the
+  old named volumes. They stay in place as a rollback copy, but they stop at the
+  moment of the cutover, so rolling back loses everything written since.
+- `.data/` is gitignored, so `git clean -dx` deletes it.
 
 ## Local development
 

@@ -92,11 +92,14 @@ dev and CI leave them unset) swap the data mounts for bind paths, normally
 `./.data/pgdata` and `./.data/media`. Compose reads them from `apps/web-nuxt/.env` and
 resolves relative paths from `apps/web-nuxt`, also when run from the repo root through
 `COMPOSE_FILE`. `compose.e2e.yaml` pins the named volumes, because the e2e project
-reads the same `.env` and must not open the live data directory. `.data/` is
-gitignored and excluded in `.dockerignore`. Bind caveats: rustfs needs its directory
-owned by 10001:10001, data must be copied before enabling the variables (steps in the
-README), and `.worktreeinclude` lists `.data/`, so `wt switch --create` on a host
-with bind data would try to copy it. Why: [decisions.md](decisions.md).
+reads the same `.env` and must not run Postgres on the live data directory. `.data/`
+is gitignored, excluded in `.dockerignore` and left out of `.worktreeinclude` (its
+unreadable Postgres files abort `wt step copy-ignored`). Bind caveats: rustfs needs
+to own its directory (uid 10001 in the container); data must be copied before enabling
+the variables (steps in the README); the variables fall back silently, so losing them
+or running compose from another checkout moves the live `db` onto other data, because
+the project name is fixed; and `app-dev` bind-mounts the repo, so dev and e2e on such
+a host can still reach `.data/`. Why: [decisions.md](decisions.md).
 
 Hygiene: `mise run docker-clean` reclaims this project's dangling images + orphan
 build-artifact volumes (scoped by the compose label, never touching the pgdata or
@@ -198,7 +201,8 @@ Reference list with comments: `apps/web-nuxt/.env.example`; typed defaults in
   version floor, for undoing a too-high floor with a restart.
 - Compose-level (not app config): `NG_APP_VERSION`, `NG_APP_TARGET`,
   `NG_APP_TAG_SUFFIX` (image tag + build target, see above), `NG_APP_PORT` (host
-  port), `NG_RUNTIME=bun` (for `mise run deploy`).
+  port), `NG_RUNTIME=bun` (for `mise run deploy`), `NG_PGDATA_SOURCE`,
+  `NG_MEDIA_SOURCE` (data location, see Docker above).
 
 ## Planning docs (kept current as work happens)
 
