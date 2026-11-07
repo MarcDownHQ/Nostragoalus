@@ -1099,3 +1099,15 @@ Universal Link and the app calls the callback with its own session. The
 account-deletion e2e found this: it was the first run of the mailed path from
 a device. See [features/mobile-app.md](features/mobile-app.md).
 
+
+## Data location is an env-selected mount source, not a production overlay
+
+Production has to keep its main data in bind mounts beside the compose file, while
+dev, e2e and CI keep their named volumes. An
+interpolated mount source (`${NG_PGDATA_SOURCE:-nostragoalus_pgdata}`) does this with
+no extra compose file, and with the variables unset the resolved config is
+byte-identical to the old one. The catch is that every overlay reads the same `.env`,
+so the e2e overlay pins the named volumes: otherwise an e2e run on such a host would
+start a second Postgres on the live data directory. The same move left the old media
+volume unused, which `docker-clean` then treated as an orphan, so it now spares media
+by name as it did pgdata. See [operations.md](operations.md).

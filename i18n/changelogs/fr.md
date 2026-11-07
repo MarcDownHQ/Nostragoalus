@@ -5,6 +5,14 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) ; les ve
 
 ## [Unreleased]
 
+### Ajouté
+
+- Auto-hébergement : la base de données et le stockage des images peuvent désormais résider dans des dossiers à côté du fichier compose, en définissant `NG_PGDATA_SOURCE` et `NG_MEDIA_SOURCE` dans `.env`. Les installations existantes gardent leurs volumes Docker tant qu'elles ne font pas ce choix, et doivent d'abord copier leurs données, sinon le site démarre vide.
+
+### Corrigé
+
+- `mise run docker-clean` ne supprime plus le volume de stockage des images lorsque la pile est arrêtée.
+
 ## [5.2.0] - 2026-10-21
 
 ### Ajouté

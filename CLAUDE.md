@@ -105,7 +105,7 @@ pnpm workspace. The paths below are relative to the repo root unless noted.
   the main checkout or auth 500s on the default secret.
 - Docker hygiene: `mise run docker-clean` reclaims this project's dangling
   images + orphan build-artifact volumes (`--renew-anon-volumes` leftovers),
-  scoped by the compose project label and never touching pgdata. Leave the
+  scoped by the compose project label and never touching pgdata or media. Leave the
   build cache alone - it's a daemon-wide, content-addressed, cross-worktree
   asset (shared pnpm-store mount + deps layers; identical lockfile across
   worktrees = full cache hit). `docker builder prune` wipes it for every

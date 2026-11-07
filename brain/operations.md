@@ -76,8 +76,8 @@ otherwise viable here: its `child_process` honors `{shell:true}` so cycletls'
 
 | Service | Image | Role |
 |---|---|---|
-| `db` | postgres:17.10-alpine | Postgres (volume `nostragoalus_pgdata`) |
-| `rustfs` | rustfs/rustfs | S3-compatible object storage (volume `nostragoalus_media`) |
+| `db` | postgres:17.10-alpine | Postgres (volume `nostragoalus_pgdata`, or the bind path in `NG_PGDATA_SOURCE`) |
+| `rustfs` | rustfs/rustfs | S3-compatible object storage (volume `nostragoalus_media`, or the bind path in `NG_MEDIA_SOURCE`) |
 | `rustfs-init` | pgsty/mc | one-shot bucket init (idempotent) |
 | `mc` | pgsty/mc | backup/restore client (profile `tools`) |
 | `coturn` | coturn/coturn:4.6.2-alpine | TURN relay for voice (profile `voice`); see [architecture/webrtc.md](architecture/webrtc.md) |
@@ -87,8 +87,20 @@ otherwise viable here: its `child_process` honors `{shell:true}` so cycletls'
 | `keycloak` | quay.io/keycloak/keycloak:26.0 | SSO IdP for the e2e suite (dev overlay, profile `e2e`) |
 | `app-bun` | nostragoalus-app:e2e-bun (`prod-bun` target) | the Bun app for `e2e-bun` (`compose.e2e-bun.yaml`, profile `e2e-bun`) |
 
+**Data location.** `NG_PGDATA_SOURCE` / `NG_MEDIA_SOURCE` (unset = the named volumes;
+dev and CI leave them unset) swap the data mounts for bind paths, normally
+`./.data/pgdata` and `./.data/media`. Compose reads them from `apps/web-nuxt/.env` and
+resolves relative paths from `apps/web-nuxt`, also when run from the repo root through
+`COMPOSE_FILE`. `compose.e2e.yaml` pins the named volumes, because the e2e project
+reads the same `.env` and must not open the live data directory. `.data/` is
+gitignored and excluded in `.dockerignore`. Bind caveats: rustfs needs its directory
+owned by 10001:10001, data must be copied before enabling the variables (steps in the
+README), and `.worktreeinclude` lists `.data/`, so `wt switch --create` on a host
+with bind data would try to copy it. Why: [decisions.md](decisions.md).
+
 Hygiene: `mise run docker-clean` reclaims this project's dangling images + orphan
-build-artifact volumes (scoped by the compose label, never touching pgdata).
+build-artifact volumes (scoped by the compose label, never touching the pgdata or
+media volumes, in use or not).
 Leave the daemon-wide build cache alone - `docker builder prune` wipes it for
 every worktree at once.
 

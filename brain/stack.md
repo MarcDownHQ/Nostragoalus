@@ -94,7 +94,8 @@ Sources of truth: `apps/web-nuxt/package.json`, `pnpm-workspace.yaml`,
   the isolated e2e stack). Base services: `db`, `rustfs` (+`rustfs-init`, `mc`),
   `coturn` (`coturn/coturn:4.6.2-alpine`, profile `voice`), `app`. Dev overlay:
   `app-dev`, `maildev`, `keycloak` (profile `e2e`, the SSO IdP for e2e). Volumes
-  `nostragoalus_pgdata`, `nostragoalus_media`.
+  `nostragoalus_pgdata`, `nostragoalus_media` (or bind paths via `NG_PGDATA_SOURCE`,
+  `NG_MEDIA_SOURCE`; see [operations.md](operations.md)).
 - **mise** task runner (`.mise.toml` + `mise-tasks/`). See
   [operations.md](operations.md).
 

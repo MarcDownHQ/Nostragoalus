@@ -279,6 +279,36 @@ image side). Upgrading from a database-only deploy: after this release, run the
 **`media:migrate-blobs`** task from the admin Background-tasks page until it reports
 zero, to move existing images into storage.
 
+### Keeping data in bind mounts
+
+By default Postgres and the image store use the named Docker volumes. To keep them
+in directories beside the compose file instead, set both of these in
+`apps/web-nuxt/.env`. Relative paths resolve from `apps/web-nuxt`, whichever directory
+you run compose from:
+
+```bash
+NG_PGDATA_SOURCE=./.data/pgdata
+NG_MEDIA_SOURCE=./.data/media
+```
+
+On an existing deploy, **copy the data first**: with these set and the directories
+empty, the app starts on an empty database. With the stack stopped (`down`, never
+`down -v`), from `apps/web-nuxt`:
+
+```bash
+mkdir -p .data/pgdata .data/media
+for d in pgdata media; do
+  docker run --rm -v "nostragoalus_nostragoalus_$d:/from:ro" -v "$PWD/.data/$d:/to" \
+    alpine sh -c 'cp -a /from/. /to/ && chown "$(stat -c %u:%g /from)" /to'
+done
+```
+
+Ownership has to survive the copy. rustfs runs as uid 10001 and exits with
+`Permission denied` on a directory it does not own, so a new, empty media directory
+needs `chown 10001:10001` too; Postgres fixes its own directory at startup. The
+named volumes stay in place as the rollback copy until you remove them by hand.
+`.data/` is gitignored, so `git clean -x` deletes it.
+
 ## Local development
 
 ```bash

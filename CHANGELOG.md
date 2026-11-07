@@ -5,6 +5,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); ver
 
 ## [Unreleased]
 
+### Added
+
+- Self-hosting: the database and image storage can now live in folders next to the compose file, by setting `NG_PGDATA_SOURCE` and `NG_MEDIA_SOURCE` in `.env`. Existing installs keep their Docker volumes unless they opt in, and must copy their data over first or the site starts empty.
+
+### Fixed
+
+- `mise run docker-clean` no longer deletes the image storage volume when the stack is stopped.
+
 ## [5.2.0] - 2026-10-21
 
 ### Added
