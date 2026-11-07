@@ -16,7 +16,7 @@ services:
     # No published port: the app reaches the db in-network as `db:5432`. Host
     # access (local `pnpm dev`, psql) is added by compose.dev.yaml, on loopback.
     volumes:
-      - nostragoalus_pgdata:/var/lib/postgresql/data
+      - ${NG_PGDATA_SOURCE:-nostragoalus_pgdata}:/var/lib/postgresql/data
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U nostragoalus -d nostragoalus']
       interval: 5s
@@ -36,8 +36,10 @@ services:
       RUSTFS_SECRET_KEY: ${NUXT_STORAGE_S3_SECRET_ACCESS_KEY:-rustfsadmin}
     # No published port in prod: the app reaches it as rustfs:9000 in-network.
     # compose.dev.yaml publishes the S3 API + console (9001) on loopback.
+    # A bind source for NG_MEDIA_SOURCE must be owned by 10001:10001: rustfs runs as
+    # that uid and, unlike with a named volume, nothing sets the ownership for it.
     volumes:
-      - nostragoalus_media:/data
+      - ${NG_MEDIA_SOURCE:-nostragoalus_media}:/data
 
   # One-shot: rustfs does not auto-create buckets, so make the app's bucket once
   # it is reachable (idempotent: mc mb -p succeeds if it already exists).
