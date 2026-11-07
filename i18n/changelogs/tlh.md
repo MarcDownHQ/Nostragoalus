@@ -5,6 +5,8 @@ naDev Nostragoalus choHmey potlh Hoch qonlu'.
 
 ## [Unreleased]
 
+## [5.3.0] - 2026-11-07
+
 ### chelpu'
 
 - De' pol: DaH `NG_PGDATA_SOURCE` `NG_MEDIA_SOURCE` je `.env`Daq yIcher; compose retlhDaq database mIllogh je ta'. bIcherbe'chugh, choHbe' Docker pol. wa'DIch De' yIlab, pagh chIm Daq.
